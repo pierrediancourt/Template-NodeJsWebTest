@@ -30,7 +30,64 @@ function checkLogIn(url, login, password, expectedMessage){
 			deferred.resolve(promise);
 		})
 		.catch(function (error) {
-			console.error("\t\t[LOG] Nightmare error: ", error);
+			//console.error("\t\t[LOG] Nightmare error: ", error);
+			deferred.reject(error);
+		});
+	return deferred.promise;
+}
+
+function check1(url){
+	var deferred = Q.defer();
+	new Nightmare()
+        .goto(url)
+        .click("#navbar a > input[type='button']") //pure js here, does a document.querySelector(XXX)
+        .wait()
+        .evaluate(function () { //the js we execute in the page opened in the electron browser
+        	//pure js here, no jquery
+        	//js executed on the client side
+            return document.querySelector("#registerForm");
+        })
+        .end() //stops the navigation
+		.then(function(evaluateResult) {
+			//console.log("\t\t[LOG] Nightmare then function");
+			//console.log("\t\t[LOG] "+JSON.stringify(evaluateResult));
+			var promise = Q.all([
+					Promise.resolve(evaluateResult).should.eventually.not.be.null,
+					Promise.resolve(evaluateResult).should.eventually.be.an('object')
+				]);
+			deferred.resolve(promise);
+		})
+		.catch(function (error) {
+			//console.error("\t\t[LOG] Nightmare error: ", error);
+			deferred.reject(error);
+		});
+	return deferred.promise;
+}
+
+function check2(url){
+	var deferred = Q.defer();
+	new Nightmare()
+        .goto(url)
+        .wait()
+        .inject("js", "node_modules/jquery/dist/jquery.js")
+        .evaluate(function () {
+        	//jquery available here because of the inject() line
+        	//js executed on the client side
+        	$("#navbar a > input[type='button']:eq(1)").click();
+            return $("#registerForm");
+        })
+        .end()
+		.then(function(evaluateResult) {
+			//console.log("\t\t[LOG] Nightmare then function");
+			//console.log("\t\t[LOG] "+JSON.stringify(evaluateResult));
+			var promise = Q.all([
+					Promise.resolve(evaluateResult).should.eventually.not.be.null,
+					Promise.resolve(evaluateResult).should.eventually.be.an('object')
+				]);
+			deferred.resolve(promise);
+		})
+		.catch(function (error) {
+			//console.error("\t\t[LOG] Nightmare error: ", error);
 			deferred.reject(error);
 		});
 	return deferred.promise;
@@ -38,5 +95,7 @@ function checkLogIn(url, login, password, expectedMessage){
 
 //making functions public
 module.exports = {
-	checkLogIn : checkLogIn
+	checkLogIn : checkLogIn,
+	check2 : check2,
+	check1 : check1
 }

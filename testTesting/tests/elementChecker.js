@@ -11,22 +11,7 @@ const should = chai.should();
 const Q = require("q");
 /////
 
-function checkNavbarLinksCount(url, linksCount) {
-	return checkElementsCount(url, linksCount, "#navbar a");
-}
-
-//This test will pass only if we have 5 links and x buttons in the navbar
-//It's an example of having multiple expectations for a function to validate the test
-//Where this expectations are in multiple test functions located in the same checker file
-function checkNavbar(url, linksCount) {
-	return checkNavbarLinksCount(url, 5)
-	.then(checkElementsCount(url, linksCount, "#navbar a > input[type='button']"));
-}
-
-function checkNavbarButtonsCount(url, linksCount) {
-	return checkElementsCount(url, linksCount, "#navbar a > input[type='button']");
-}
-
+/////Private checks
 function checkElementsCount(url, expectedLinksCount, jQuerySelector){
 	var deferred = Q.defer();
 	jsdom.env({
@@ -49,8 +34,30 @@ function checkElementsCount(url, expectedLinksCount, jQuerySelector){
 	return deferred.promise;
 }
 
+/////Public checks
+function checkNavbarLinksCount(url, linksCount) {
+	return checkElementsCount(url, linksCount, "#navbar a");
+}
+
+//This test will pass only if we have 5 links and x buttons in the navbar
+//It's an example of having multiple expectations for a function to validate the test
+//Where this expectations are in multiple test functions located in the same checker file
+function checkNavbar(url, linksCount) {
+	return checkNavbarLinksCount(url, 5)
+	.then(checkElementsCount(url, linksCount, "#navbar a > input[type='button']"));
+}
+
+function checkNavbarButtonsCount(url, linksCount) {
+	return checkElementsCount(url, linksCount, "#navbar a > input[type='button']");
+}
+
+function checkDirectBodyLinksCount(url, linksCount){
+	return checkElementsCount(url, linksCount, "body > a");
+}
+
 //making functions public
 module.exports = {
+	checkDirectBodyLinksCount : checkDirectBodyLinksCount,
 	checkNavbarLinksCount : checkNavbarLinksCount,
 	checkNavbarButtonsCount : checkNavbarButtonsCount,
 	checkNavbar : checkNavbar
